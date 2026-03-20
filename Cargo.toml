@@ -1,0 +1,66 @@
+[package]
+name = "login"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+# https://github.com/seanmonstar/reqwest
+reqwest = { version = "0.13.2", default-features = false, features = [
+    "http2",
+    "rustls",
+    "cookies",
+    "gzip",
+    "deflate",
+    "query",
+    "form",
+    "json",
+    "system-proxy",
+] }
+# https://github.com/purpleprotocol/mimalloc_rust
+mimalloc = { version = "0.1.48", default-features = false }
+# https://github.com/tokio-rs/tokio
+tokio = { version = "1.50.0", default-features = false, features = [
+    "fs",
+    "macros",
+    "signal",
+    "rt-multi-thread",
+] }
+# https://github.com/dtolnay/anyhow
+anyhow = { version = "1.0.102", default-features = false, features = ["std"] }
+# https://github.com/tokio-rs/tracing
+tracing = { version = "0.1.44", default-features = false, features = ["std"] }
+# https://github.com/tokio-rs/tracing
+tracing-subscriber = { version = "0.3.23", default-features = false, features = [
+    "std",
+    "fmt",
+    "ansi",
+    "env-filter",
+    # https://docs.rs/tracing-subscriber/latest/tracing_subscriber/fmt/time/struct.ChronoLocal.html
+    "chrono",
+    "tracing-log",
+    "smallvec",
+] }
+# https://github.com/tokio-rs/tracing
+tracing-appender = { version = "0.2.4", default-features = false }
+# https://github.com/tokio-rs/tracing
+tracing-log = { version = "0.2.0", default-features = false, features = [
+    "std",
+    "log-tracer",
+] }
+# https://github.com/Nugine/simd
+base64-simd = { version = "0.8.0", default-features = false, features = [
+    "std",
+    "detect",
+] }
+rand = "0.10.0"
+# https://github.com/cloudwego/sonic-rs
+sonic-rs = { version = "0.5.7", default-features = false }
+# https://github.com/serde-rs/serde
+serde = { version = "1.0.228", default-features = false, features = [
+    "std",
+    "derive",
+] }
+# https://github.com/zkat/supports-color
+supports-color = { version = "3.0.2", default-features = false }
+# https://github.com/clap-rs/clap-verbosity-flag
+clap-verbosity-flag = { version = "3.0.4", default-features = false }
