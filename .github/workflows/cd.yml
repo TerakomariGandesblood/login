@@ -1,32 +1,58 @@
 name: CD
 
-permissions: {}
-
 on:
   push:
     tags:
       - v[0-9]+.*
 
+permissions:
+  contents: write
+
 jobs:
   create-release:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-          submodules: recursive
-          persist-credentials: false
-      - name: Create release
-        uses: taiki-e/create-gh-release-action@v1
+      - uses: actions/checkout@v6
+      - uses: taiki-e/create-gh-release-action@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-  cd:
-    permissions:
-      contents: write
-    uses: TerakomariGandesblood/github-workflows/.github/workflows/rust-cd.yml@main
-    with:
-      bin: login
+  windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+      - name: Upload rust binary
+        uses: taiki-e/upload-rust-binary-action@v1
+        with:
+          locked: true
+          bin: login,login2,login3,login4
+          archive: tam-$target
+          zip: all
+          tar: none
+          target: x86_64-pc-windows-msvc
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-unknown-linux-musl
+      - name: Upload rust binary
+        uses: taiki-e/upload-rust-binary-action@v1
+        with:
+          locked: true
+          bin: login,login2,login3,login4
+          archive: tam-$target
+          zip: all
+          tar: none
+          target: x86_64-unknown-linux-musl
+          token: ${{ secrets.GITHUB_TOKEN }}

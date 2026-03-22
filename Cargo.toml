@@ -64,3 +64,10 @@ serde = { version = "1.0.228", default-features = false, features = [
 supports-color = { version = "3.0.2", default-features = false }
 # https://github.com/clap-rs/clap-verbosity-flag
 clap-verbosity-flag = { version = "3.0.4", default-features = false }
+csv = "1.4.0"
+
+[profile.release]
+strip = true
+lto = true
+codegen-units = 1
+panic = 'abort'

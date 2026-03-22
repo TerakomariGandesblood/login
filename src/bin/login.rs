@@ -1,9 +1,9 @@
-use std::{sync::Arc, time::Duration};
+use std::{fs, io, sync::Arc, time::Duration};
 
 use anyhow::Result;
 use rand::RngExt;
 use reqwest::redirect;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use tokio::sync::Semaphore;
 
 struct Client {
@@ -63,6 +63,16 @@ struct GetOrderListData {
     memberName: String,
     certNo: String,
     telephone: String,
+    content: Option<String>,
+}
+
+#[derive(Serialize)]
+struct ResultData {
+    account: String,
+    memberName: String,
+    certNo: Option<String>,
+    telephone: Option<String>,
+    content: Option<String>,
 }
 
 impl Client {
@@ -188,12 +198,30 @@ impl Client {
                     .await?
                     .json()
                     .await?;
-                let order = response.data;
+                let mut orders = response.data;
 
-                if !order.is_empty() {
-                    println!("{account} {name} {order:?}");
+                if !orders.is_empty() {
+                    let order = orders.remove(0);
+                    let result_data = ResultData {
+                        account: account.to_owned(),
+                        memberName: name.to_owned(),
+                        certNo: Some(order.certNo),
+                        telephone: Some(order.telephone),
+                        content: order.content,
+                    };
+
+                    let mut wtr = csv::Writer::from_writer(io::stdout());
+                    wtr.serialize(result_data)?;
+                    wtr.flush()?;
+
+                    // tracing::info!(
+                    //     "{account},{name},{},{},{}",
+                    //     order.telephone,
+                    //     order.certNo,
+                    //     order.content.as_ref().unwrap_or(&String::default())
+                    // );
                 } else {
-                    println!("{account} {name}");
+                    //tracing::info!("{account},{name},,,");
                 }
 
                 break;
@@ -216,14 +244,14 @@ async fn main() -> Result<()> {
 
     let client = Arc::new(Client::build()?);
 
-    // let accounts = fs::read_to_string("account.txt")?;
-    // for account in accounts.lines() {
-    //     client.login(account.trim()).await?;
-    // }
+    let accounts = fs::read_to_string("login.csv")?;
+    for account in accounts.lines() {
+        client.login(account.trim()).await?;
+    }
 
     let DAYS_IN_MONTH = [0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
     let CHECK_CODES = "0123456789X";
-    let semaphore = Arc::new(Semaphore::new(16));
+    let semaphore = Arc::new(Semaphore::new(64));
 
     for y in 0..10 {
         for m in 1..13 {
